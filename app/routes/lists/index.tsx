@@ -1,4 +1,5 @@
 import { Link, useLoaderData } from "react-router";
+import ReadingList from "~/components/ReadingList";
 import type { List } from "~/types/List";
 
 export async function loader(): Promise<List[]> {
@@ -16,22 +17,25 @@ export default function ListIndex() {
 
   return (
     <>
-      <h1>Lists Index</h1>
+      <h1 className="text-3xl font-bold">Reading Lists</h1>
 
       <ul>
-        <li><Link to={`/lists/new`}>New List</Link></li>
+        <li>
+          <Link
+            to={`/lists/new`}
+            className="text-blue-600 font-medium hover:underline"
+          >
+            New List
+          </Link></li>
       </ul>
-      <hr />
 
-      <p>Welcome to the Lists page. Here you can view and manage your lists.</p>
-      <ul>
-        {lists.map((list) => (
-          <li key={list.id}>
-            {list.name} <Link to={`/lists/${list.id}`}>View</Link>
-            <img src={list.thumbnail} alt={`${list.name} thumbnail`} />
-          </li>
-        ))}
-      </ul>
+      <p className="text-lg text-gray-600">
+        Welcome to the Lists page. Here you can view and manage your lists.
+      </p>
+
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {lists.map((list) => <ReadingList list={list} />)}
+      </div>
     </>
   );
 }
