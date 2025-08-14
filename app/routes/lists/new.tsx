@@ -1,4 +1,6 @@
 import { Form, redirect, useActionData, type ActionFunctionArgs } from "react-router";
+import ReadingListFormWithPreview from "~/components/ReadingListFormWithPreview";
+import type { List } from "~/types/List";
 
 export async function action({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
@@ -41,36 +43,18 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function NewList() {
     const actionData = useActionData<typeof action>();
+    const newList: List = { id: 0, name: "", thumbnail: `https://placehold.co/400x400?text=Preview` };
+
+    // TODO: Update thumbnail on list name change?
 
     return (
         <>
-            <h1>Create a List</h1>
-
-            <Form method="post">
-                <p>
-                    <label htmlFor="name">
-                        List name:
-                    </label>
-
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        required
-                    />
-                </p>
-
-                { actionData?.error && (
-                    <p>{ actionData.error }</p>
-                )}
-
-                <p>
-                    <input
-                        type="submit"
-                        value="Create List"
-                    />
-                </p>
-            </Form>
+            <ReadingListFormWithPreview
+                actionData={actionData}
+                list={newList}
+                actionText="Create New List"
+                showPreviewViewButton={false}
+            />
         </>
     )
 }

@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { Form, redirect, useActionData, useLoaderData, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
+import ReadingList from "~/components/ReadingList";
+import ReadingListFormWithPreview from "~/components/ReadingListFormWithPreview";
 import type { List } from "~/types/List";
 
 export async function loader({ params }: LoaderFunctionArgs): Promise<List> {
@@ -7,7 +10,7 @@ export async function loader({ params }: LoaderFunctionArgs): Promise<List> {
     if (!id) {
         throw new Response("List ID is required", { status: 400 });
     }
-    
+
     const listResponse = await fetch(`https://687a1addabb83744b7eb7154.mockapi.io/api/v1/lists/${id}`);
 
     if (!listResponse.ok) {
@@ -18,6 +21,7 @@ export async function loader({ params }: LoaderFunctionArgs): Promise<List> {
     return list;
 }
 
+// TODO: Add return type
 export async function action({ params, request }: ActionFunctionArgs) {
     const { id } = params;
     const formData = await request.formData();
@@ -52,30 +56,11 @@ export default function EditList() {
 
     return (
         <>
-            <h1>Edit List</h1>
-
-            <Form method="post">
-                <p>
-                    <label htmlFor="name">
-                        List name:
-                    </label>
-
-                    <input
-                        type="text"
-                        name="name"
-                        id="name"
-                        defaultValue={list.name}
-                    />
-                </p>
-
-                { actionData?.error && (
-                    <p>{ actionData.error }</p>
-                ) }
-
-                <p>
-                    <input type="submit" value="Update List" />
-                </p>
-            </Form>
+            <ReadingListFormWithPreview
+                actionData={actionData}
+                list={list}
+                actionText="Update List"
+            />
         </>
     )
 }

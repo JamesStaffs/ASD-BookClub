@@ -1,37 +1,36 @@
-import { Link } from "react-router";
-import styles from "~/styles/ReadingList.module.css";
-
+import CardWithImage from "./CardWithImage";
 interface ReadingListProps {
     list: {
         id: number;
         name: string;
         thumbnail: string;
-    }
+    },
+    showPreviewViewButton?: boolean;
 }
 
-export default function ReadingList({ list }: ReadingListProps) {
-
+export default function ReadingList({ list, showPreviewViewButton = true }: ReadingListProps) {
     return (
-        <Link
-            to={`/lists/${list.id}`}
-            key={list.id}
-            className={styles.card}
-            title={`${list.name}`}
-            aria-description={`${list.name}`}
+        <CardWithImage
+            linkHref={`/lists/${list.id}`}
+            linkAriaDescription={`${list.name} reading list`}
+            linkTitle={`${list.name} reading list`}
+            img={
+                <img
+                    src={list.thumbnail}
+                    alt={`${list.name} thumbnail`}
+                />
+            }
         >
-            <img
-                src={list.thumbnail}
-                alt={`${list.name} thumbnail`}
-            />
-
             <p>{list.name}</p>
 
-            <span
-                className={styles.btn}
-                aria-hidden="true"
-            >
-                View List
-            </span>
-        </Link>
+            {showPreviewViewButton && (
+                <span
+                    className="btn my-4 mt-auto"
+                    aria-hidden="true"
+                >
+                    View List
+                </span>
+            )}
+        </CardWithImage>
     );
 }

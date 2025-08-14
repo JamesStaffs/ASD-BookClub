@@ -1,4 +1,5 @@
 import { Link, useLoaderData } from "react-router";
+import CardGrid from "~/components/CardGrid";
 import ReadingList from "~/components/ReadingList";
 import type { List } from "~/types/List";
 
@@ -19,23 +20,21 @@ export default function ListIndex() {
     <>
       <h1 className="text-3xl font-bold">Reading Lists</h1>
 
-      <ul>
-        <li>
-          <Link
-            to={`/lists/new`}
-            className="text-blue-600 font-medium hover:underline"
-          >
-            New List
-          </Link></li>
-      </ul>
+      <Link
+        to={`/lists/new`}
+        className="btn"
+        // role="button"
+      >
+        New List
+      </Link>
 
       <p className="text-lg text-gray-600">
         Welcome to the Lists page. Here you can view and manage your lists.
       </p>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {lists.map((list) => <ReadingList list={list} />)}
-      </div>
+      <CardGrid>
+        {lists.map((list) => <ReadingList key={list.id} list={list} />)}
+      </CardGrid>
     </>
   );
 }

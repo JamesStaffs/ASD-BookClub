@@ -1,6 +1,8 @@
 import { Form, Link, redirect, useActionData, useLoaderData, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
 import type { List } from "~/types/List";
 import type { Book } from "~/types/Book";
+import CardWithImage from "~/components/CardWithImage";
+import CardGrid from "~/components/CardGrid";
 
 type ListWithBooks = List & { books: Book[] };
 
@@ -55,12 +57,21 @@ export default function ListDetail() {
   
   return (
     <>
-      <h1>{ list.name }</h1>
-      <ul>
-        <li><Link to={`/lists/${ list.id }/edit`}>Edit</Link></li>
-      </ul>
+      <h1 className="text-3xl font-bold">
+        { list.name }
+      </h1>
 
-      <Form method="post">
+      <Link
+        to={`/lists/${ list.id }/edit`}
+        className="btn mr-2"
+      >
+        Edit
+      </Link>
+
+      <Form
+        method="post"
+        className="inline-block"
+      >
         <input
           type="hidden"
           name="intent"
@@ -80,29 +91,32 @@ export default function ListDetail() {
                 e.preventDefault();
               }
             }}
+            className="btn btn-danger"
           />
         </p>
       </Form>
 
-      <hr />
+      <h2 className="text-2xl font-medium mt-6 my-2 underline">
+        Books in this list
+      </h2>
 
       { list.books.length > 0 ? (
-        <>
+        <CardGrid>
           { list.books.map(book => (
-            <div key={book.id}>
-              <img
-                src={book.thumbnail}
-                alt={book.name}
-                width={100}
-                height={100}
-              />
-
-              <h3>{ book.name }</h3>
+            // TODO: Create book show view?
+            <CardWithImage
+              key={book.id}
+              linkHref={`/books/${book.id}`}
+              linkAriaDescription={`View details for ${book.name}`}
+              linkTitle={`Details for ${book.name}`}
+              img={<img src={book.thumbnail} alt={book.name} />}
+            >
+              <h3 className="text-lg font-semibold">{ book.name }</h3>
               <p>by { book.author }</p>
               <p>{ book.description }</p>
-            </div>
+            </CardWithImage>
           )) }
-        </>
+        </CardGrid>
       ) : (
         <p>There are currently no books to display for this list.</p>
       ) }
