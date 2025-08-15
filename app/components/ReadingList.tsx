@@ -21,16 +21,18 @@ export default function ReadingList({ list, showPreviewViewButton = true }: Read
                 />
             }
         >
-            <p>{list.name}</p>
+            <div className="flex flex-col h-full">
+                <p>{list.name}</p>
 
-            {showPreviewViewButton && (
-                <span
-                    className="btn my-4 mt-auto"
-                    aria-hidden="true"
-                >
-                    View List
-                </span>
-            )}
+                {showPreviewViewButton && (
+                    <span
+                        className="btn mt-auto"
+                        aria-hidden="true"
+                    >
+                        View List
+                    </span>
+                )}
+            </div>
         </CardWithImage>
     );
 }
