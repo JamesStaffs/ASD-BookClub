@@ -1,4 +1,3 @@
-import { link } from "fs";
 import { Link } from "react-router";
 import styles from "~/styles/CardWithImage.module.css";
 
