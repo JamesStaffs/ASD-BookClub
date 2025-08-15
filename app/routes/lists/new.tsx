@@ -1,6 +1,14 @@
-import { Form, redirect, useActionData, type ActionFunctionArgs } from "react-router";
+import { Form, redirect, useActionData, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
 import ReadingListFormWithPreview from "~/components/ReadingListFormWithPreview";
+import { getUserId } from "~/services/session.server";
 import type { List } from "~/types/List";
+
+export async function loader({ request }: LoaderFunctionArgs): Promise<void> {
+    const userId = await getUserId(request);
+    if (!userId) {
+        throw redirect("/auth/login");
+    }
+};
 
 export async function action({ request }: ActionFunctionArgs) {
     const formData = await request.formData();

@@ -2,9 +2,15 @@ import { useEffect, useState } from "react";
 import { Form, redirect, useActionData, useLoaderData, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
 import ReadingList from "~/components/ReadingList";
 import ReadingListFormWithPreview from "~/components/ReadingListFormWithPreview";
+import { getUserId } from "~/services/session.server";
 import type { List } from "~/types/List";
 
-export async function loader({ params }: LoaderFunctionArgs): Promise<List> {
+export async function loader({ request, params }: LoaderFunctionArgs): Promise<List> {
+    const userId = await getUserId(request);
+    if (!userId) {
+        throw redirect("/auth/login");
+    }
+
     const { id } = params;
 
     if (!id) {

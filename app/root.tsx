@@ -5,10 +5,18 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  type LoaderFunctionArgs,
 } from "react-router";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const userId = await getUserId(request);
+  return { isLoggedIn: Boolean(userId) };
+}
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import Navigation from "./components/Navigation";
+import { getUserId } from "./services/session.server";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -33,6 +41,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        <Navigation />
+
         <main className="max-w-5xl mx-auto p-6">
           {children}
         </main>

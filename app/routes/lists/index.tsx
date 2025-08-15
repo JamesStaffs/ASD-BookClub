@@ -1,16 +1,22 @@
-import { Link, useLoaderData } from "react-router";
+import { Link, redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
 import CardGrid from "~/components/CardGrid";
 import ReadingList from "~/components/ReadingList";
+import { getUserId } from "~/services/session.server";
 import type { List } from "~/types/List";
 
-export async function loader(): Promise<List[]> {
-    const response = await fetch("https://687a1addabb83744b7eb7154.mockapi.io/api/v1/lists");
-    if (!response.ok) {
-        throw new Error("Failed to fetch lists");
-    }
-    
-    const data: List[] = await response.json();
-    return data;
+export async function loader({ request }: LoaderFunctionArgs): Promise<List[]> {
+  const userId = await getUserId(request);
+  if (!userId) {
+    throw redirect("/auth/login");
+  }
+
+  const response = await fetch("https://687a1addabb83744b7eb7154.mockapi.io/api/v1/lists");
+  if (!response.ok) {
+    throw new Error("Failed to fetch lists");
+  }
+
+  const data: List[] = await response.json();
+  return data;
 }
 
 export default function ListIndex() {
@@ -23,7 +29,7 @@ export default function ListIndex() {
       <Link
         to={`/lists/new`}
         className="btn"
-        // role="button"
+      // role="button"
       >
         New List
       </Link>

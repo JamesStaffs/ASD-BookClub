@@ -3,15 +3,21 @@ import type { List } from "~/types/List";
 import type { Book } from "~/types/Book";
 import CardWithImage from "~/components/CardWithImage";
 import CardGrid from "~/components/CardGrid";
+import { getUserId } from "~/services/session.server";
 
 type ListWithBooks = List & { books: Book[] };
 
-export async function loader({ params }: LoaderFunctionArgs): Promise<ListWithBooks> {
+export async function loader({ request, params }: LoaderFunctionArgs): Promise<ListWithBooks> {
+  const userId = await getUserId(request);
+  if (!userId) {
+    throw redirect("/auth/login");
+  }
+
   const { id } = params;
   if (!id) {
     throw new Response("List ID is required", { status: 400 });
   }
-  
+
   const [listResponse, booksResponse] = await Promise.all([
     fetch(`https://687a1addabb83744b7eb7154.mockapi.io/api/v1/lists/${id}`),
     fetch(`https://687a1addabb83744b7eb7154.mockapi.io/api/v1/lists/${id}/books`)
@@ -29,7 +35,7 @@ export async function loader({ params }: LoaderFunctionArgs): Promise<ListWithBo
   return { ...list, books };
 }
 
-export async function action({ params, request}: ActionFunctionArgs) {
+export async function action({ params, request }: ActionFunctionArgs) {
   const { id } = params;
   const formData = await request.formData();
   const intent = formData.get("intent");
@@ -54,15 +60,15 @@ export async function action({ params, request}: ActionFunctionArgs) {
 export default function ListDetail() {
   const list = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  
+
   return (
     <>
       <h1 className="text-3xl font-bold">
-        { list.name }
+        {list.name}
       </h1>
 
       <Link
-        to={`/lists/${ list.id }/edit`}
+        to={`/lists/${list.id}/edit`}
         className="btn mr-2"
       >
         Edit
@@ -78,15 +84,15 @@ export default function ListDetail() {
           value="delete"
         />
 
-        { actionData?.error && (
-          <p>{ actionData.error }</p>
-        ) }
+        {actionData?.error && (
+          <p>{actionData.error}</p>
+        )}
 
         <p>
           <input
             type="submit"
             value="Delete list"
-            onClick={ e => {
+            onClick={e => {
               if (!confirm("Are you sure that you want to delete this list?")) {
                 e.preventDefault();
               }
@@ -100,9 +106,9 @@ export default function ListDetail() {
         Books in this list
       </h2>
 
-      { list.books.length > 0 ? (
+      {list.books.length > 0 ? (
         <CardGrid>
-          { list.books.map(book => (
+          {list.books.map(book => (
             // TODO: Create book show view?
             <CardWithImage
               key={book.id}
@@ -111,15 +117,15 @@ export default function ListDetail() {
               linkTitle={`Details for ${book.name}`}
               img={<img src={book.thumbnail} alt={book.name} />}
             >
-              <h3 className="text-lg font-semibold">{ book.name }</h3>
-              <p>by { book.author }</p>
-              <p>{ book.description }</p>
+              <h3 className="text-lg font-semibold">{book.name}</h3>
+              <p>by {book.author}</p>
+              <p>{book.description}</p>
             </CardWithImage>
-          )) }
+          ))}
         </CardGrid>
       ) : (
         <p>There are currently no books to display for this list.</p>
-      ) }
+      )}
     </>
   );
 }
