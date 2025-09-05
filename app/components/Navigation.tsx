@@ -2,7 +2,7 @@ import { useRouteLoaderData } from "react-router";
 
 export default function Navigation() {
     const routerLoaderData = useRouteLoaderData("root");
-    const isLoggedIn = routerLoaderData.isLoggedIn;
+    const isLoggedIn = routerLoaderData?.isLoggedIn;
 
     return (
         <nav>
