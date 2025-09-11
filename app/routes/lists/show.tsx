@@ -1,26 +1,23 @@
-import { Form, Link, redirect, useActionData, useLoaderData, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
+import * as config from "~/config";
+import { Form, Link, redirect, useActionData, useLoaderData, type ClientActionFunctionArgs, type ClientLoaderFunctionArgs, } from "react-router";
 import type { List } from "~/types/List";
 import type { Book } from "~/types/Book";
 import CardWithImage from "~/components/CardWithImage";
 import CardGrid from "~/components/CardGrid";
-import { getUserId } from "~/services/session.server";
+import { fetchAuthenticated } from "~/utils/authentication";
+import { Authenticated } from "~/components/Authenticated";
 
 type ListWithBooks = List & { books: Book[] };
 
-export async function loader({ request, params }: LoaderFunctionArgs): Promise<ListWithBooks> {
-  const userId = await getUserId(request);
-  if (!userId) {
-    throw redirect("/auth/login");
-  }
-
+export async function clientLoader({ params }: ClientLoaderFunctionArgs): Promise<ListWithBooks> {
   const { id } = params;
   if (!id) {
     throw new Response("List ID is required", { status: 400 });
   }
 
   const [listResponse, booksResponse] = await Promise.all([
-    fetch(`https://687a1addabb83744b7eb7154.mockapi.io/api/v1/lists/${id}`),
-    fetch(`https://687a1addabb83744b7eb7154.mockapi.io/api/v1/lists/${id}/books`)
+    fetchAuthenticated(`/v1/lists/${id}`),
+    fetchAuthenticated(`/v1/lists/${id}/books`)
   ]);
 
   if (!listResponse.ok) {
@@ -35,13 +32,17 @@ export async function loader({ request, params }: LoaderFunctionArgs): Promise<L
   return { ...list, books };
 }
 
-export async function action({ params, request }: ActionFunctionArgs) {
+export async function clientAction({ params, request }: ClientActionFunctionArgs) {
   const { id } = params;
+  if (!id) {
+    throw new Response("List ID is required", { status: 400 });
+  }
+
   const formData = await request.formData();
   const intent = formData.get("intent");
 
   if (intent === "delete") {
-    const response = await fetch(`https://687a1addabb83744b7eb7154.mockapi.io/api/v1/lists/${id}`, {
+    const response = await fetchAuthenticated(`/v1/lists/${id}`, {
       method: "DELETE"
     });
 
@@ -51,30 +52,31 @@ export async function action({ params, request }: ActionFunctionArgs) {
       }
     }
 
-    return redirect(`/lists`);
+    return redirect(config.ROUTES.LISTS.INDEX);
   }
 
   return null;
 }
 
 export default function ListDetail() {
-  const list = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const list = useLoaderData<typeof clientLoader>();
+  const actionData = useActionData<typeof clientAction>();
 
   return (
-    <>
+    <Authenticated>
       <h1 className="text-3xl font-bold">
         {list.name}
       </h1>
 
       <Link
-        to={`/lists/${list.id}/edit`}
+        to={config.ROUTES.LISTS.EDIT.PATH(list.id)}
         className="btn mr-2"
       >
         Edit
       </Link>
 
       <Form
+        action={config.ROUTES.LISTS.SHOW.PATH(list.id)}
         method="post"
         className="inline-block"
       >
@@ -109,7 +111,6 @@ export default function ListDetail() {
       {list.books.length > 0 ? (
         <CardGrid>
           {list.books.map(book => (
-            // TODO: Create book show view?
             <CardWithImage
               key={book.id}
               linkHref={`/books/${book.id}`}
@@ -126,6 +127,6 @@ export default function ListDetail() {
       ) : (
         <p>There are currently no books to display for this list.</p>
       )}
-    </>
+    </Authenticated>
   );
 }

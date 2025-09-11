@@ -1,16 +1,11 @@
-import { Form, redirect, useActionData, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
+import { redirect, useActionData, type ClientActionFunctionArgs } from "react-router";
 import ReadingListFormWithPreview from "~/components/ReadingListFormWithPreview";
-import { getUserId } from "~/services/session.server";
+import { fetchAuthenticated } from "~/utils/authentication";
 import type { List } from "~/types/List";
+import { Authenticated } from "~/components/Authenticated";
+import * as config from "~/config";
 
-export async function loader({ request }: LoaderFunctionArgs): Promise<void> {
-    const userId = await getUserId(request);
-    if (!userId) {
-        throw redirect("/auth/login");
-    }
-};
-
-export async function action({ request }: ActionFunctionArgs) {
+export async function clientAction({ request }: ClientActionFunctionArgs) {
     const formData = await request.formData();
     const name = formData.get("name");
 
@@ -22,11 +17,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
     let response;
     try {
-        response = await fetch("https://687a1addabb83744b7eb7154.mockapi.io/api/v1/lists", {
+        response = await fetchAuthenticated("/v1/lists", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
             body: JSON.stringify({
                 name,
                 thumbnail: `https://placehold.co/400x400?text=${encodeURIComponent(name)}`
@@ -46,23 +38,23 @@ export async function action({ request }: ActionFunctionArgs) {
 
     const list = await response.json();
 
-    return redirect(`/lists/${list.id}`);
+    return redirect(config.ROUTES.LISTS.SHOW.PATH(list.id));
 }
 
 export default function NewList() {
-    const actionData = useActionData<typeof action>();
+    const actionData = useActionData<typeof clientAction>();
     const newList: List = { id: 0, name: "", thumbnail: `https://placehold.co/400x400?text=Preview` };
 
     // TODO: Update thumbnail on list name change?
 
     return (
-        <>
+        <Authenticated>
             <ReadingListFormWithPreview
                 actionData={actionData}
                 list={newList}
                 actionText="Create New List"
                 showPreviewViewButton={false}
             />
-        </>
+        </Authenticated>
     )
 }

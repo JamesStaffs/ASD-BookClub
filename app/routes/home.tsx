@@ -1,3 +1,4 @@
+import * as config from "~/config";
 import { redirect, type LoaderFunctionArgs } from "react-router";
 import type { Route } from "./+types/home";
 
@@ -9,5 +10,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export function loader({}: LoaderFunctionArgs) {
-  return redirect("/lists");
+  return redirect(config.ROUTES.LISTS.INDEX);
 }

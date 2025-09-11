@@ -1,16 +1,12 @@
-import { Link, redirect, useLoaderData, type LoaderFunctionArgs } from "react-router";
+import * as config from "~/config";
+import { Link, useLoaderData, type ClientLoaderFunction,  } from "react-router";
+import { Authenticated } from "~/components/Authenticated";
 import CardGrid from "~/components/CardGrid";
 import ReadingList from "~/components/ReadingList";
-import { getUserId } from "~/services/session.server";
-import type { List } from "~/types/List";
+import { fetchAuthenticated } from "~/utils/authentication";
 
-export async function loader({ request }: LoaderFunctionArgs): Promise<List[]> {
-  const userId = await getUserId(request);
-  if (!userId) {
-    throw redirect("/auth/login");
-  }
-
-  const response = await fetch("https://687a1addabb83744b7eb7154.mockapi.io/api/v1/lists");
+export async function clientLoader({ request }: ClientLoaderFunction): Promise<List[]> {
+  const response = await fetchAuthenticated("/v1/lists");
   if (!response.ok) {
     throw new Error("Failed to fetch lists");
   }
@@ -19,17 +15,16 @@ export async function loader({ request }: LoaderFunctionArgs): Promise<List[]> {
   return data;
 }
 
-export default function ListIndex() {
-  const lists = useLoaderData<typeof loader>();
+export default function ListsIndex() {
+  const lists = useLoaderData<typeof clientLoader>();
 
   return (
-    <>
+    <Authenticated>
       <h1 className="text-3xl font-bold">Reading Lists</h1>
 
       <Link
-        to={`/lists/new`}
+        to={config.ROUTES.LISTS.NEW}
         className="btn"
-      // role="button"
       >
         New List
       </Link>
@@ -41,6 +36,6 @@ export default function ListIndex() {
       <CardGrid>
         {lists.map((list) => <ReadingList key={list.id} list={list} />)}
       </CardGrid>
-    </>
+    </Authenticated>
   );
 }

@@ -1,64 +1,75 @@
 /**
- * Source and adapted from:
+ * Adapted for JWTs from:
  * https://github.com/aaronksaunders/react-router-v7-auth-app-1
  * https://reactrouter.com/explanation/sessions-and-cookies
  */
 
-import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
-import { createUserSession, getUserId } from "~/services/session.server";
+import { Form, useNavigate, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
+import { useEffect } from "react";
+import * as config from "~/config";
+import { isAuthenticatedClient } from "~/utils/authentication";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-    // Check if the user is already logged in
-    const userId = await getUserId(request);
-    if (userId) {
-        return redirect("/");
-    }
-}
-
-export async function action({ request }: ActionFunctionArgs) {
-    let response: Response;
-
+export async function clientAction({ params, request }: ActionFunctionArgs) {
     try {
         const formData = await request.formData();
         const email = formData.get("email")?.toString();
         const password = formData.get("password")?.toString();
 
-        // Check the user's credentials
-        if (email !== "james.stanley@staffs.ac.uk" || password !== "password") {
-            throw new Error("Invalid email or password");
-        }
-
-        // Create a session
-        response = await createUserSession({
-            request,
-            userId: "james.stanley@staffs.ac.uk",
-            remember: true,
+        /**
+         * NOTE:
+         * This is a mock endpoint and the file is present in /public/api/v1/login
+         * For this reason, the request URL begins with /api/.
+         * The endpoint is hardcoded to return a string resembling a JWT for any email/password
+         */
+        const res = await fetch("/api/v1/login", {
+            method: "POST",
+            body: JSON.stringify({ email, password })
         });
 
-        if (!response) {
-            throw new Error("An error occurred while creating the session");
+        if (!res.ok) {
+            throw new Error("Unable to authenticate with username or password");
         }
+
+        const data = await res.json();
+        if (!data.token) {
+            throw new Error("No token returned from server");
+        }
+
+        return { token: data.token };
     } catch (error) {
-        if (error instanceof Error) {
-            return { error: error.message };
-        }
-
-        return { error: "An unknown error occurred" };
+        const message = (error instanceof Error) ? error.message : "An unknown error occurred";
+        return { error: message };
     }
-
-    throw response;
 }
 
-export default function AuthLogin({ actionData }: { actionData?: { error?: string } }) {
+export default function AuthLogin({ actionData }: { actionData?: { error?: string; token?: string } }) {
+    const navigate = useNavigate();
+    useEffect(() => {
+        // Redirect if already authenticated
+        if (isAuthenticatedClient()) {
+            navigate("/");
+            return;
+        }
+
+        // Store token and redirect following successful login
+        if (actionData?.token) {
+            localStorage.setItem(config.JWT_LOCALSTORAGE_KEY, actionData.token);
+            navigate("/");
+            return;
+        }
+    }, [actionData]);
+
     return (
         <>
             <h1 className="text-3xl font-bold">Login</h1>
-            <form method="post" className="max-w-sm mx-auto mt-8 p-6 bg-white rounded shadow space-y-6">
+            
+            <Form method="post" className="max-w-sm mx-auto mt-8 p-6 bg-white rounded shadow space-y-6">
                 {actionData?.error && (
                     <div className="mb-4 text-red-600 text-sm font-medium">
                         {actionData.error}
                     </div>
                 )}
+                
                 <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                         Email
@@ -89,7 +100,7 @@ export default function AuthLogin({ actionData }: { actionData?: { error?: strin
                 >
                     Login
                 </button>
-            </form>
+            </Form>
         </>
     );
 }

@@ -1,24 +1,17 @@
-import { useEffect, useState } from "react";
-import { Form, redirect, useActionData, useLoaderData, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
-import ReadingList from "~/components/ReadingList";
+import * as config from "~/config";
+import { redirect, useActionData, useLoaderData, type ClientActionFunctionArgs, type ClientLoaderFunctionArgs } from "react-router";
 import ReadingListFormWithPreview from "~/components/ReadingListFormWithPreview";
-import { getUserId } from "~/services/session.server";
+import { fetchAuthenticated } from "~/utils/authentication";
 import type { List } from "~/types/List";
+import { Authenticated } from "~/components/Authenticated";
 
-export async function loader({ request, params }: LoaderFunctionArgs): Promise<List> {
-    const userId = await getUserId(request);
-    if (!userId) {
-        throw redirect("/auth/login");
-    }
-
+export async function clientLoader({ request, params }: ClientLoaderFunctionArgs): Promise<List> {
     const { id } = params;
-
     if (!id) {
         throw new Response("List ID is required", { status: 400 });
     }
 
-    const listResponse = await fetch(`https://687a1addabb83744b7eb7154.mockapi.io/api/v1/lists/${id}`);
-
+    const listResponse = await fetchAuthenticated(`/v1/lists/${id}`);
     if (!listResponse.ok) {
         throw new Response("Failed to fetch list", { status: listResponse.status });
     }
@@ -27,11 +20,16 @@ export async function loader({ request, params }: LoaderFunctionArgs): Promise<L
     return list;
 }
 
-// TODO: Add return type
-export async function action({ params, request }: ActionFunctionArgs) {
+export async function clientAction({ params, request }: ClientActionFunctionArgs) {
     const { id } = params;
     const formData = await request.formData();
     const name = formData.get("name");
+
+    if (!id) {
+        return {
+            error: "List ID is required"
+        };
+    }
 
     if (!name) {
         return {
@@ -39,11 +37,8 @@ export async function action({ params, request }: ActionFunctionArgs) {
         };
     }
 
-    const response = await fetch(`https://687a1addabb83744b7eb7154.mockapi.io/api/v1/lists/${id}`, {
+    const response = await fetchAuthenticated(`/v1/lists/${id}`, {
         method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
         body: JSON.stringify({ name })
     });
 
@@ -53,20 +48,20 @@ export async function action({ params, request }: ActionFunctionArgs) {
         };
     }
 
-    return redirect(`/lists/${id}`);
+    return redirect(config.ROUTES.LISTS.SHOW.PATH(id));
 }
 
 export default function EditList() {
-    const list = useLoaderData<typeof loader>();
-    const actionData = useActionData<typeof action>();
+    const list = useLoaderData<typeof clientLoader>();
+    const actionData = useActionData<typeof clientAction>();
 
     return (
-        <>
+        <Authenticated>
             <ReadingListFormWithPreview
                 actionData={actionData}
                 list={list}
                 actionText="Update List"
             />
-        </>
+        </Authenticated>
     )
 }

@@ -1,33 +1,18 @@
-/**
- * Source and adapted from:
- * https://github.com/aaronksaunders/react-router-v7-auth-app-1
- * https://reactrouter.com/explanation/sessions-and-cookies
- */
+import * as config from "~/config";
+import { useEffect } from "react";
+import { clientClearJwt } from "~/utils/authentication";
+import { useNavigate } from "react-router";
 
-import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
-import { logout } from "~/services/session.server";
+export default function Logout() {
+    const navigate = useNavigate();
 
-/**
- * Action function for the logout route.
- * Handles the logout process when a POST request is made to this route.
- * 
- * @param {Route.ActionArgs} params - The action arguments.
- * @returns {Promise<Response>} Redirect response after logging out.
- * @see https://reactrouter.com/en/dev/route/action
- */
-export async function action({ request }: ActionFunctionArgs) {
-    return logout(request);
-}
+    useEffect(() => {
+        clientClearJwt();
+        navigate(config.ROUTES.LOGIN);
+    }, []);
 
-/**
- * Loader function for the logout route.
- * Redirects to the login page if accessed directly.
- * 
- * @param {Route.LoaderArgs} params - The loader arguments.
- * @returns {Response} Redirect response to the login page.
- * @see https://reactrouter.com/en/dev/route/loader
- */
-export async function loader({ request }: LoaderFunctionArgs) {
-    return logout(request);
-    // return redirect("/auth/login");
+    return <>
+        <h1>Logging out</h1>
+        <p>You will be redirected shortly.</p>
+    </>;
 }

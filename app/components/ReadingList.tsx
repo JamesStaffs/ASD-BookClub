@@ -1,3 +1,4 @@
+import * as config from "~/config";
 import CardWithImage from "./CardWithImage";
 interface ReadingListProps {
     list: {
@@ -11,7 +12,7 @@ interface ReadingListProps {
 export default function ReadingList({ list, showPreviewViewButton = true }: ReadingListProps) {
     return (
         <CardWithImage
-            linkHref={`/lists/${list.id}`}
+            linkHref={config.ROUTES.LISTS.SHOW.PATH(list.id)}
             linkAriaDescription={`${list.name} reading list`}
             linkTitle={`${list.name} reading list`}
             img={
