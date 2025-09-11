@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, type JSX } from "react";
 import { Form } from "react-router";
 import ReadingList from "./ReadingList";
 import type { List } from "~/types/List";
 
 interface ReadingListFormWithPreviewProps {
-    // TODO: Update actionData type
     actionData: any,
     list: List,
     actionText: string,
@@ -16,7 +15,7 @@ export default function ReadingListFormWithPreview({
     list,
     actionText,
     showPreviewViewButton = true,
-}: ReadingListFormWithPreviewProps) {
+}: ReadingListFormWithPreviewProps): JSX.Element {
     const [listName, setListName] = useState(list?.name || "");
     const listPreview: List = { ...list, name: listName };
 

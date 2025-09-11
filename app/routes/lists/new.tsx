@@ -4,8 +4,9 @@ import { fetchAuthenticated } from "~/utils/authentication";
 import type { List } from "~/types/List";
 import { Authenticated } from "~/components/Authenticated";
 import * as config from "~/config";
+import type { ActionDataError } from "~/types/ActionDataError";
 
-export async function clientAction({ request }: ClientActionFunctionArgs) {
+export async function clientAction({ request }: ClientActionFunctionArgs): Promise<ActionDataError | Response> {
     const formData = await request.formData();
     const name = formData.get("name");
 

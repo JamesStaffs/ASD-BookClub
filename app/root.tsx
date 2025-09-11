@@ -3,11 +3,8 @@ import {
   Links,
   Meta,
   Outlet,
-  redirect,
   Scripts,
   ScrollRestoration,
-  useNavigate,
-  type LoaderFunctionArgs,
 } from "react-router";
 
 import type { Route } from "./+types/root";

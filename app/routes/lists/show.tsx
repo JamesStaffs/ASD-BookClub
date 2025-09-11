@@ -6,6 +6,7 @@ import CardWithImage from "~/components/CardWithImage";
 import CardGrid from "~/components/CardGrid";
 import { fetchAuthenticated } from "~/utils/authentication";
 import { Authenticated } from "~/components/Authenticated";
+import type { ActionDataError } from "~/types/ActionDataError";
 
 type ListWithBooks = List & { books: Book[] };
 
@@ -35,7 +36,10 @@ export async function clientLoader({ params }: ClientLoaderFunctionArgs): Promis
   return { ...list, books };
 }
 
-export async function clientAction({ params, request }: ClientActionFunctionArgs) {
+/**
+ * @throws Response
+ */
+export async function clientAction({ params, request }: ClientActionFunctionArgs): Promise<ActionDataError | Response> {
   const { id } = params;
   if (!id) {
     throw new Response("List ID is required", { status: 400 });
@@ -52,13 +56,13 @@ export async function clientAction({ params, request }: ClientActionFunctionArgs
     if (!response.ok) {
       return {
         error: "Failed to delete list"
-      }
+      };
     }
 
     return redirect(config.ROUTES.LISTS.INDEX);
   }
 
-  return null;
+  throw new Response("An unexpected error occurred - no request intent specified.", { status: 400 });
 }
 
 export default function ListDetail() {

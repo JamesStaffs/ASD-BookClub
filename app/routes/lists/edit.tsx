@@ -4,6 +4,7 @@ import ReadingListFormWithPreview from "~/components/ReadingListFormWithPreview"
 import { fetchAuthenticated } from "~/utils/authentication";
 import type { List } from "~/types/List";
 import { Authenticated } from "~/components/Authenticated";
+import type { ActionDataError } from "~/types/ActionDataError";
 
 export async function clientLoader({ request, params }: ClientLoaderFunctionArgs): Promise<List> {
     const { id } = params;
@@ -20,7 +21,7 @@ export async function clientLoader({ request, params }: ClientLoaderFunctionArgs
     return list;
 }
 
-export async function clientAction({ params, request }: ClientActionFunctionArgs) {
+export async function clientAction({ params, request }: ClientActionFunctionArgs): Promise<ActionDataError | Response> {
     const { id } = params;
     const formData = await request.formData();
     const name = formData.get("name");

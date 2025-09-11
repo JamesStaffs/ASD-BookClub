@@ -4,13 +4,15 @@
  * https://reactrouter.com/explanation/sessions-and-cookies
  */
 
-import { Form, useNavigate, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
+import { Form, useNavigate, type ActionFunctionArgs } from "react-router";
 import { useEffect } from "react";
-import * as config from "~/config";
-import { isAuthenticatedClient } from "~/utils/authentication";
+import { clientSetJwt, isAuthenticatedClient } from "~/utils/authentication";
 import { dispatchAuthenticationEvent } from "~/events/AuthenticationEvent";
+import type { Jwt } from "~/types/Jwt";
+import type { ActionDataToken } from "~/types/ActionDataToken";
+import type { ApiLoginResponse } from "~/types/ApiLoginResponse";
 
-export async function clientAction({ params, request }: ActionFunctionArgs) {
+export async function clientAction({ params, request }: ActionFunctionArgs): Promise<ActionDataToken> {
     try {
         const formData = await request.formData();
         const email = formData.get("email")?.toString();
@@ -28,12 +30,12 @@ export async function clientAction({ params, request }: ActionFunctionArgs) {
         });
 
         if (!res.ok) {
-            throw new Error("Unable to authenticate with username or password");
+            return { error: `Login failed (${res.status}): ${res.statusText}` };
         }
 
-        const data = await res.json();
-        if (!data.token) {
-            throw new Error("No token returned from server");
+        const data: ApiLoginResponse = await res.json();
+        if (data.error || !data.token) {
+            return { error: "Login failed" + (data.error ? `: ${data.error}` : "") };
         }
 
         return { token: data.token };
@@ -53,8 +55,9 @@ export default function AuthLogin({ actionData }: { actionData?: { error?: strin
         }
 
         // Store token and redirect following successful login
-        if (actionData?.token) {
-            localStorage.setItem(config.JWT_LOCALSTORAGE_KEY, actionData.token);
+        const token: Jwt | undefined = actionData?.token as Jwt | undefined ;
+        if (token) {
+            clientSetJwt(token);
             dispatchAuthenticationEvent();
             navigate("/");
             return;

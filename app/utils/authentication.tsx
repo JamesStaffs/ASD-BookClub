@@ -1,17 +1,19 @@
-import { UnauthorizedError } from "../errors/UnauthorizedError";
+import { UnauthorizedError } from "~/errors/UnauthorizedError";
+import type { FetchAuthenticated, FetchAuthenticatedHandleUnauthorizedResponse } from "~/types/FetchAuthenticated";
+import type { Jwt } from "~/types/Jwt";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import * as config from "~/config";
 
-export function clientSetJwt(token: string) {
+export function clientSetJwt(token: Jwt): void {
   window.localStorage.setItem(config.JWT_LOCALSTORAGE_KEY, token);
 }
 
-export function clientGetJwt(): string | null {
-  return window.localStorage.getItem(config.JWT_LOCALSTORAGE_KEY);
+export function clientGetJwt(): Jwt | null {
+  return window.localStorage.getItem(config.JWT_LOCALSTORAGE_KEY) as Jwt | null;
 }
 
-export function clientClearJwt() {
+export function clientClearJwt(): void {
   window.localStorage.removeItem(config.JWT_LOCALSTORAGE_KEY);
 }
 
@@ -38,10 +40,12 @@ export function useRequireAuthentication(): boolean {
   return authenticated === true;
 }
 
-// A wrapper for fetch() that includes the JWT in the Authorization header
-export async function fetchAuthenticated(input: RequestInfo, init: RequestInit = {}) {
+/**
+ * @throws {UnauthorizedError}
+ */
+export const fetchAuthenticated: FetchAuthenticated = async (input, init = {}) => {
   const hasWindow = typeof window !== "undefined";
-  const token = hasWindow ? clientGetJwt() : null;
+  const token: Jwt | null = hasWindow ? clientGetJwt() : null;
 
   const headers = new Headers(init.headers || {});
   
@@ -69,11 +73,14 @@ export async function fetchAuthenticated(input: RequestInfo, init: RequestInit =
   fetchAuthenticatedHandleUnauthorizedResponse(response);
 
   return response;
-}
+};
 
-function fetchAuthenticatedHandleUnauthorizedResponse(response: Response) {
+/**
+ * @throws {UnauthorizedError}
+ */
+const fetchAuthenticatedHandleUnauthorizedResponse: FetchAuthenticatedHandleUnauthorizedResponse = (response) => {
   if (response.status === 401) {
     throw new UnauthorizedError();
   }
   return response;
-}
+};

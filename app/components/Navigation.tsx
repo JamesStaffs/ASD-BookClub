@@ -1,6 +1,6 @@
 import * as config from "~/config";
 import { isAuthenticatedClient } from "~/utils/authentication";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type JSX } from "react";
 import { AuthenticationEvent } from "~/events/AuthenticationEvent";
 
 /**
@@ -11,7 +11,7 @@ import { AuthenticationEvent } from "~/events/AuthenticationEvent";
  *   - Use a context provider to manage auth state globally
  */
 
-export default function Navigation() {
+export default function Navigation(): JSX.Element {
     const [loggedIn, setLoggedIn] = useState(false);
 
     useEffect(() => {

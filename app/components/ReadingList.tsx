@@ -1,5 +1,6 @@
 import * as config from "~/config";
 import CardWithImage from "./CardWithImage";
+import type { JSX } from "react";
 interface ReadingListProps {
     list: {
         id: number;
@@ -9,7 +10,7 @@ interface ReadingListProps {
     showPreviewViewButton?: boolean;
 }
 
-export default function ReadingList({ list, showPreviewViewButton = true }: ReadingListProps) {
+export default function ReadingList({ list, showPreviewViewButton = true }: ReadingListProps): JSX.Element {
     return (
         <CardWithImage
             linkHref={config.ROUTES.LISTS.SHOW.PATH(list.id)}

@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import { Link } from "react-router";
 import styles from "~/styles/CardWithImage.module.css";
 
@@ -15,7 +16,7 @@ export default function CardWithImage({
     linkTitle,
     img,
     children
- }: CardWithImageProps) {
+ }: CardWithImageProps): JSX.Element {
 
     return (
         <Link
