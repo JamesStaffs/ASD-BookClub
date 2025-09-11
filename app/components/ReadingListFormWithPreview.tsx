@@ -1,5 +1,5 @@
 import { useState, type JSX } from "react";
-import { Form } from "react-router";
+import { Form, useNavigate } from "react-router";
 import ReadingList from "./ReadingList";
 import type { List } from "~/types/List";
 
@@ -16,6 +16,7 @@ export default function ReadingListFormWithPreview({
     actionText,
     showPreviewViewButton = true,
 }: ReadingListFormWithPreviewProps): JSX.Element {
+    const navigate = useNavigate();
     const [listName, setListName] = useState(list?.name || "");
     const listPreview: List = { ...list, name: listName };
 
@@ -58,7 +59,7 @@ export default function ReadingListFormWithPreview({
                         <button
                             type="button"
                             className="ml-2 bg-gray-300 text-gray-800 text-sm font-medium rounded px-4 py-2 hover:bg-gray-400 transition"
-                            onClick={() => window.history.back()}
+                            onClick={() => navigate(-1)}
                         >
                             Cancel
                         </button>

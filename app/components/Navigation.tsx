@@ -2,6 +2,7 @@ import * as config from "~/config";
 import { isAuthenticatedClient } from "~/utils/authentication";
 import { useEffect, useState, type JSX } from "react";
 import { AuthenticationEvent } from "~/events/AuthenticationEvent";
+import { Link } from "react-router";
 
 /**
  * TODO: Fix flash of unauthenticated state on initial load
@@ -33,14 +34,14 @@ export default function Navigation(): JSX.Element {
     return (
         <nav>
             <div className="max-w-5xl mx-auto px-6 flex items-center justify-between h-16">
-                <a href="/" className="text-xl font-bold text-gray-900">BookClub</a>
+                <Link to={config.ROUTES.HOME} className="text-xl font-bold text-gray-900">BookClub</Link>
                 <div className="flex space-x-6">
-                    <a href={config.ROUTES.LISTS.INDEX} className="text-gray-700 hover:text-blue-600 transition">Book Lists</a>
-                    <a href={config.ROUTES.LISTS.NEW} className="text-gray-700 hover:text-blue-600 transition">Create a List</a>
+                    <Link to={config.ROUTES.LISTS.INDEX} className="text-gray-700 hover:text-blue-600 transition">Book Lists</Link>
+                    <Link to={config.ROUTES.LISTS.NEW} className="text-gray-700 hover:text-blue-600 transition">Create a List</Link>
                     {loggedIn ? (
-                        <a href={config.ROUTES.LOGOUT} className="text-gray-700 hover:text-blue-600 transition">Logout</a>
+                        <Link to={config.ROUTES.LOGOUT} className="text-gray-700 hover:text-blue-600 transition">Logout</Link>
                     ) : (
-                        <a href={config.ROUTES.LOGIN} className="text-gray-700 hover:text-blue-600 transition">Login</a>
+                        <Link to={config.ROUTES.LOGIN} className="text-gray-700 hover:text-blue-600 transition">Login</Link>
                     )}
                 </div>
             </div>
