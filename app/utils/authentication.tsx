@@ -36,3 +36,32 @@ export function useRequireAuthentication(): boolean {
 
   return authenticated === true;
 }
+
+// A wrapper for fetch() that includes the JWT in the Authorization header
+export function fetchAuthenticated(input: RequestInfo, init: RequestInit = {}) {
+  const hasWindow = typeof window !== "undefined";
+  const token = hasWindow ? clientGetJwt() : null;
+
+  const headers = new Headers(init.headers || {});
+  
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+  
+  if (!headers.has("Accept")) {
+    headers.set("Accept", "application/json");
+  }
+
+  // Set Content-Type header if not already set and if method is not GET
+  const method = (init.method || "GET").toUpperCase();
+  if (method !== "GET" && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  let url = typeof input === "string" ? input : (input as Request).url;
+  if (!url.startsWith(config.API_BASE_URL)) {
+    url = config.API_BASE_URL + (url.startsWith("/") ? url : "/" + url);
+  }
+
+  return fetch(url, { ...init, headers });
+}
