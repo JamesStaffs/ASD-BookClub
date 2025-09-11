@@ -1,3 +1,4 @@
+import { UnauthorizedError } from "../errors/UnauthorizedError";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import * as config from "~/config";
@@ -38,7 +39,7 @@ export function useRequireAuthentication(): boolean {
 }
 
 // A wrapper for fetch() that includes the JWT in the Authorization header
-export function fetchAuthenticated(input: RequestInfo, init: RequestInit = {}) {
+export async function fetchAuthenticated(input: RequestInfo, init: RequestInit = {}) {
   const hasWindow = typeof window !== "undefined";
   const token = hasWindow ? clientGetJwt() : null;
 
@@ -59,9 +60,20 @@ export function fetchAuthenticated(input: RequestInfo, init: RequestInit = {}) {
   }
 
   let url = typeof input === "string" ? input : (input as Request).url;
-  if (!url.startsWith(config.API_BASE_URL)) {
+  if (!url.startsWith(config.API_BASE_URL) && !url.startsWith("http")) {
     url = config.API_BASE_URL + (url.startsWith("/") ? url : "/" + url);
   }
 
-  return fetch(url, { ...init, headers });
+  // Inspect the response to ensure we are authenticated
+  const response = await fetch(url, { ...init, headers });
+  fetchAuthenticatedHandleUnauthorizedResponse(response);
+
+  return response;
+}
+
+function fetchAuthenticatedHandleUnauthorizedResponse(response: Response) {
+  if (response.status === 401) {
+    throw new UnauthorizedError();
+  }
+  return response;
 }

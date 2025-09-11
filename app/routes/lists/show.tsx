@@ -17,7 +17,10 @@ export async function clientLoader({ params }: ClientLoaderFunctionArgs): Promis
 
   const [listResponse, booksResponse] = await Promise.all([
     fetchAuthenticated(`/v1/lists/${id}`),
-    fetchAuthenticated(`/v1/lists/${id}/books`)
+    fetchAuthenticated(`/v1/lists/${id}/books`),
+    
+    // Test unauthorized response
+    // fetchAuthenticated(`https://tools-httpstatus.pickup-services.com/401`)
   ]);
 
   if (!listResponse.ok) {

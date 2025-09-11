@@ -44,7 +44,7 @@ export default function handleRequest(
             "font-src 'self' https://fonts.gstatic.com; " +
             "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; " +
             "script-src 'self' 'unsafe-inline'; " +
-            "connect-src 'self' https://687a1addabb83744b7eb7154.mockapi.io; " +
+            "connect-src 'self' https://687a1addabb83744b7eb7154.mockapi.io https://tools-httpstatus.pickup-services.com; " +
             "img-src 'self' https://picsum.photos https://*.picsum.photos https://placehold.co;");
           responseHeaders.set("X-Content-Type-Options", "nosniff");
           responseHeaders.set("X-Frame-Options", "DENY");

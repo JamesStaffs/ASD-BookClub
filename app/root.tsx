@@ -3,14 +3,19 @@ import {
   Links,
   Meta,
   Outlet,
+  redirect,
   Scripts,
   ScrollRestoration,
+  useNavigate,
   type LoaderFunctionArgs,
 } from "react-router";
 
 import type { Route } from "./+types/root";
-import "./app.css";
 import Navigation from "./components/Navigation";
+import { UnauthorizedError } from "./errors/UnauthorizedError";
+import "./app.css";
+import * as config from "./config";
+import { clientClearJwt } from "./utils/authentication";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -56,7 +61,14 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let details = "An unexpected error occurred.";
   let stack: string | undefined;
 
-  if (isRouteErrorResponse(error)) {
+  if (error instanceof UnauthorizedError) {
+    if (typeof window !== "undefined") {
+      clientClearJwt();
+      window.location.replace(config.ROUTES.LOGIN);
+    }
+    message = "Unauthorized";
+    details = "You are not authorized. Redirecting to login...";
+  } else if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? "404" : "Error";
     details =
       error.status === 404
