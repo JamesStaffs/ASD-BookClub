@@ -4,14 +4,6 @@ import { useEffect, useState, type JSX } from "react";
 import { AuthenticationEvent } from "~/events/AuthenticationEvent";
 import { Link } from "react-router";
 
-/**
- * TODO: Fix flash of unauthenticated state on initial load
- * - Possible solutions:
- *   - Use a loading state until authentication is confirmed
- *   - Implement server-side rendering checks if applicable
- *   - Use a context provider to manage auth state globally
- */
-
 export default function Navigation(): JSX.Element {
     const [loggedIn, setLoggedIn] = useState(false);
 
