@@ -21,14 +21,17 @@ export default function ListsIndex() {
 
   return (
     <Authenticated>
-      <h1 className="text-3xl font-bold">Reading Lists</h1>
-
-      <Link
-        to={config.ROUTES.LISTS.NEW}
-        className="btn"
-      >
-        New List
-      </Link>
+      <nav className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+        <h1 className="text-3xl font-bold">Reading Lists</h1>
+        <div className="mt-2 sm:mt-0 sm:text-right text-left">
+          <Link
+            to={config.ROUTES.LISTS.NEW}
+            className="btn"
+          >
+            New List
+          </Link>
+        </div>
+      </nav>
 
       <p className="text-lg text-gray-600">
         Welcome to the Lists page. Here you can view and manage your lists.

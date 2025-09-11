@@ -19,7 +19,7 @@ export async function clientLoader({ params }: ClientLoaderFunctionArgs): Promis
   const [listResponse, booksResponse] = await Promise.all([
     fetchAuthenticated(`/v1/lists/${id}`),
     fetchAuthenticated(`/v1/lists/${id}/books`),
-    
+
     // Test unauthorized response
     // fetchAuthenticated(`https://tools-httpstatus.pickup-services.com/401`)
   ]);
@@ -71,49 +71,53 @@ export default function ListDetail() {
 
   return (
     <Authenticated>
-      <h1 className="text-3xl font-bold">
-        {list.name}
-      </h1>
+      <nav className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+        <h1 className="text-3xl font-bold">
+          {list.name}
+        </h1>
 
-      <Link
-        to={config.ROUTES.LISTS.EDIT.PATH(list.id)}
-        className="btn mr-2"
-      >
-        Edit
-      </Link>
+        <div className="mt-2 sm:mt-0 sm:text-right text-left">
+          <Link
+            to={config.ROUTES.LISTS.EDIT.PATH(list.id)}
+            className="btn mr-2"
+          >
+            Edit
+          </Link>
 
-      <Form
-        action={config.ROUTES.LISTS.SHOW.PATH(list.id)}
-        method="post"
-        className="inline-block"
-      >
-        <input
-          type="hidden"
-          name="intent"
-          value="delete"
-        />
+          <Form
+            action={config.ROUTES.LISTS.SHOW.PATH(list.id)}
+            method="post"
+            className="inline-block"
+          >
+            <input
+              type="hidden"
+              name="intent"
+              value="delete"
+            />
 
-        {actionData?.error && (
-          <p>{actionData.error}</p>
-        )}
+            {actionData?.error && (
+              <p>{actionData.error}</p>
+            )}
 
-        <p>
-          <input
-            type="submit"
-            value="Delete list"
-            onClick={e => {
-              if (!confirm("Are you sure that you want to delete this list?")) {
-                e.preventDefault();
-              }
-            }}
-            className="btn btn-danger"
-          />
-        </p>
-      </Form>
+            <p>
+              <input
+                type="submit"
+                value="Delete list"
+                onClick={e => {
+                  if (!confirm("Are you sure that you want to delete this list?")) {
+                    e.preventDefault();
+                  }
+                }}
+                className="btn btn-danger"
+              />
+            </p>
+          </Form>
+        </div>
+      </nav>
 
-      <h2 className="text-2xl font-medium mt-6 my-2 underline">
-        Books in this list
-      </h2>
+      <p className="text-lg text-gray-600 mb-6">
+        Feel free to browse the selection of books in this list below.
+      </p>
 
       {list.books.length > 0 ? (
         <CardGrid>
