@@ -11,12 +11,6 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import Navigation from "./components/Navigation";
-import { getUserId } from "./services/session.server";
-
-export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await getUserId(request);
-  return { isLoggedIn: Boolean(userId) };
-}
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
