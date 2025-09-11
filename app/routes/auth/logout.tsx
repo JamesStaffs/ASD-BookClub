@@ -1,6 +1,7 @@
 import * as config from "~/config";
 import { useEffect } from "react";
 import { clientClearJwt } from "~/utils/authentication";
+import { dispatchAuthenticationEvent } from "~/events/AuthenticationEvent";
 import { useNavigate } from "react-router";
 
 export default function Logout() {
@@ -8,6 +9,7 @@ export default function Logout() {
 
     useEffect(() => {
         clientClearJwt();
+        dispatchAuthenticationEvent();
         navigate(config.ROUTES.LOGIN);
     }, []);
 

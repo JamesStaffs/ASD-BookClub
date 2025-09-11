@@ -8,6 +8,7 @@ import { Form, useNavigate, type ActionFunctionArgs, type LoaderFunctionArgs } f
 import { useEffect } from "react";
 import * as config from "~/config";
 import { isAuthenticatedClient } from "~/utils/authentication";
+import { dispatchAuthenticationEvent } from "~/events/AuthenticationEvent";
 
 export async function clientAction({ params, request }: ActionFunctionArgs) {
     try {
@@ -54,6 +55,7 @@ export default function AuthLogin({ actionData }: { actionData?: { error?: strin
         // Store token and redirect following successful login
         if (actionData?.token) {
             localStorage.setItem(config.JWT_LOCALSTORAGE_KEY, actionData.token);
+            dispatchAuthenticationEvent();
             navigate("/");
             return;
         }
@@ -69,7 +71,7 @@ export default function AuthLogin({ actionData }: { actionData?: { error?: strin
                         {actionData.error}
                     </div>
                 )}
-                
+
                 <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                         Email

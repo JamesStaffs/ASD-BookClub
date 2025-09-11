@@ -1,6 +1,7 @@
 import * as config from "~/config";
 import { isAuthenticatedClient } from "~/utils/authentication";
 import { useEffect, useState } from "react";
+import { AuthenticationEvent } from "~/events/AuthenticationEvent";
 
 /**
  * TODO: Fix flash of unauthenticated state on initial load
@@ -12,9 +13,21 @@ import { useEffect, useState } from "react";
 
 export default function Navigation() {
     const [loggedIn, setLoggedIn] = useState(false);
+
     useEffect(() => {
-        const isLoggedIn = isAuthenticatedClient();
-        setLoggedIn(isLoggedIn);
+        const checkAuth = () => setLoggedIn(isAuthenticatedClient());
+        checkAuth();
+
+        // Listen for custom 'authenticated' event
+        window.addEventListener("authentication", (e) => {
+            if (e instanceof AuthenticationEvent) {
+                checkAuth();
+            }
+        });
+
+        return () => {
+            window.removeEventListener("authenticated", checkAuth);
+        };
     }, []);
 
     return (
