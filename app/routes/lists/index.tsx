@@ -1,11 +1,12 @@
 import * as config from "~/config";
-import { Link, useLoaderData, type ClientLoaderFunction,  } from "react-router";
+import { Link, useLoaderData, type ClientLoaderFunctionArgs,  } from "react-router";
 import { Authenticated } from "~/components/Authenticated";
 import CardGrid from "~/components/CardGrid";
 import ReadingList from "~/components/ReadingList";
 import { fetchAuthenticated } from "~/utils/authentication";
+import type { List } from "~/types/List";
 
-export async function clientLoader({ request }: ClientLoaderFunction): Promise<List[]> {
+export async function clientLoader({ request }: ClientLoaderFunctionArgs): Promise<List[]> {
   const response = await fetchAuthenticated("/v1/lists");
   if (!response.ok) {
     throw new Error("Failed to fetch lists");
