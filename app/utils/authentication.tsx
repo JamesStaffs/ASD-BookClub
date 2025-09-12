@@ -44,8 +44,14 @@ export function useRequireAuthentication(): boolean {
  * @throws {UnauthorizedError}
  */
 export const fetchAuthenticated: FetchAuthenticated = async (input, init = {}) => {
-  const hasWindow = typeof window !== "undefined";
-  const token: Jwt | null = hasWindow ? clientGetJwt() : null;
+  if (typeof window === "undefined") {
+    throw new Error("fetchAuthenticated can only be used in a client/browser environment");
+  }
+
+  const token: Jwt | null = clientGetJwt();
+  if (token === null || !isAuthenticatedClient()) {
+    throw new UnauthorizedError();
+  }
 
   const headers = new Headers(init.headers || {});
   
